@@ -22,11 +22,9 @@ export const ProjectsPage = () => {
     try {
       const nextProjects = await projectService.list();
       setProjects(nextProjects);
-    } catch (loadError) {
+    } catch (error) {
       setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "Unable to load projects",
+        error instanceof Error ? error.message : "Unable to load projects",
       );
     } finally {
       setLoading(false);

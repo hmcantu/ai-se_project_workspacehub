@@ -2,7 +2,7 @@ import { Project } from "../models/Project";
 import type { AuthPayload } from "../types/domain";
 import { AppError } from "../utils/appError";
 import { assertFound } from "../utils/scopedQuery";
-import { optionalString, requireString } from "../utils/validators";
+import { optionalString, requireStringLength } from "../utils/validators";
 import { canDeleteResource, canManageProject } from "./permissionService";
 
 export const listProjects = async (organizationId: string) => {
@@ -13,7 +13,7 @@ export const createProject = async (
   actor: AuthPayload,
   payload: Record<string, unknown>,
 ) => {
-  const name = requireString(payload.name, "Name");
+  const name = requireStringLength(payload.name, "Name", 2);
   const description = optionalString(payload.description) ?? "";
 
   return Project.create({
@@ -44,7 +44,7 @@ export const updateProject = async (
   }
 
   if (payload.name !== undefined) {
-    project.name = requireString(payload.name, "Name");
+    project.name = requireStringLength(payload.name, "Name", 2);
   }
 
   if (payload.description !== undefined) {

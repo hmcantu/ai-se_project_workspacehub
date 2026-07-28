@@ -1,7 +1,11 @@
 import { Organization } from "../models/Organization";
 import type { FeatureFlags } from "../types/domain";
 import { AppError } from "../utils/appError";
-import { parseBoolean, requireSlug, requireString } from "../utils/validators";
+import {
+  parseBoolean,
+  requireSlug,
+  requireStringLength,
+} from "../utils/validators";
 
 export const getCurrentOrganization = async (organizationId: string) => {
   const organization = await Organization.findById(organizationId);
@@ -20,7 +24,7 @@ export const updateCurrentOrganization = async (
   const organization = await getCurrentOrganization(organizationId);
 
   if (payload.name !== undefined) {
-    organization.name = requireString(payload.name, "Name");
+    organization.name = requireStringLength(payload.name, "Name", 2);
   }
 
   if (payload.slug !== undefined) {

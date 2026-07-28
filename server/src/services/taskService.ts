@@ -11,6 +11,7 @@ import {
   parseTaskPriority,
   parseTaskStatus,
   requireString,
+  requireStringLength,
 } from "../utils/validators";
 import {
   canDeleteResource,
@@ -49,7 +50,7 @@ export const createTask = async (
   actor: AuthPayload,
   payload: Record<string, unknown>,
 ) => {
-  const title = requireString(payload.title, "Title");
+  const title = requireStringLength(payload.title, "Title", 2);
   const projectId = requireString(payload.projectId, "Project ID");
   const description = optionalString(payload.description) ?? "";
   const status =
@@ -119,7 +120,7 @@ export const updateTask = async (
   }
 
   if (payload.title !== undefined) {
-    task.title = requireString(payload.title, "Title");
+    task.title = requireStringLength(payload.title, "Title", 2);
   }
 
   if (payload.description !== undefined) {

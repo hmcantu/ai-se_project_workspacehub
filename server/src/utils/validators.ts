@@ -14,6 +14,20 @@ export const requireString = (value: unknown, field: string): string => {
   return value.trim();
 };
 
+export const requireStringLength = (
+  value: unknown,
+  field: string,
+  length: number,
+): string => {
+  const s = requireString(value, field);
+
+  if (s.trim().length < length) {
+    throw new AppError(`${field} must be at least ${length} characters`, 400);
+  }
+
+  return s.trim();
+};
+
 export const optionalString = (value: unknown): string | undefined => {
   if (typeof value !== "string") {
     return undefined;

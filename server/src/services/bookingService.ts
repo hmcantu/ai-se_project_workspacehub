@@ -2,7 +2,11 @@ import { Booking } from "../models/Booking";
 import type { AuthPayload } from "../types/domain";
 import { AppError } from "../utils/appError";
 import { assertFound } from "../utils/scopedQuery";
-import { optionalString, parseDate, requireString } from "../utils/validators";
+import {
+  optionalString,
+  parseDate,
+  requireStringLength,
+} from "../utils/validators";
 import { canDeleteResource, canManageBooking } from "./permissionService";
 
 const validateBookingWindow = (startsAt: Date, endsAt: Date) => {
@@ -37,7 +41,7 @@ export const createBooking = async (
   actor: AuthPayload,
   payload: Record<string, unknown>,
 ) => {
-  const title = requireString(payload.title, "Title");
+  const title = requireStringLength(payload.title, "Title", 2);
   const description = optionalString(payload.description) ?? "";
   const startsAt = parseDate(payload.startsAt, "Start time");
   const endsAt = parseDate(payload.endsAt, "End time");
@@ -75,7 +79,7 @@ export const updateBooking = async (
   }
 
   if (payload.title !== undefined) {
-    booking.title = requireString(payload.title, "Title");
+    requireStringLength(payload.title, "Title", 2);
   }
 
   if (payload.description !== undefined) {
