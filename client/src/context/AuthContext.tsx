@@ -1,5 +1,4 @@
 import {
-  createContext,
   useEffect,
   useMemo,
   useState,
@@ -17,27 +16,9 @@ import type {
   User,
   UserRole,
 } from "../types/models";
-
-interface AuthContextValue {
-  token: string | null;
-  user: User | null;
-  organization: Organization | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-  login: (payload: LoginPayload) => Promise<void>;
-  register: (payload: RegisterPayload) => Promise<void>;
-  logout: () => void;
-  refreshSession: () => Promise<void>;
-  setOrganizationState: (organization: Organization) => void;
-  hasRole: (...roles: UserRole[]) => boolean;
-  isFeatureEnabled: (featureKey: keyof FeatureFlags) => boolean;
-}
+import { AuthContext, type AuthContextValue } from "./authContextDefinition";
 
 const STORAGE_KEY = "workspacehub_token";
-
-export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined,
-);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [token, setToken] = useState<string | null>(
