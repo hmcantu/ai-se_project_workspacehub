@@ -21,6 +21,29 @@ const buildBookingFormState = (booking: Booking): BookingFormState => ({
   endsAt: formatDateTimeInput(booking.endsAt),
 });
 
+const validateBookingFormState = (state: BookingFormState): string | null => {
+  if (!state.title || state.title.trim().length < 2) {
+    return "Title must be at least 2 characters long.";
+  }
+
+  if (!state.startsAt || !state.endsAt) {
+    return "Both start and end times are required.";
+  }
+
+  const startDate = new Date(state.startsAt);
+  const endDate = new Date(state.endsAt);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return "Please enter valid start and end dates.";
+  }
+
+  if (endDate <= startDate) {
+    return "End time must be strictly after the start time.";
+  }
+
+  return null;
+};
+
 export const BookingsPage = () => {
   const { isFeatureEnabled, user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -76,6 +99,13 @@ export const BookingsPage = () => {
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setCreateError(null);
+
+    const validationError = validateBookingFormState(createState);
+    if (validationError) {
+      setCreateError(validationError);
+      return;
+    }
 
     try {
       const booking = await bookingService.create(createState);
@@ -94,7 +124,6 @@ export const BookingsPage = () => {
         startsAt: "",
         endsAt: "",
       });
-      setCreateError(null);
     } catch (createError) {
       setCreateError(
         createError instanceof Error
@@ -119,10 +148,26 @@ export const BookingsPage = () => {
   };
 
   const handleSave = async (bookingId: string) => {
+    setBookingErrors((current) => ({ ...current, [bookingId]: "" }));
+
+    const formState = bookingEdits[bookingId];
+    if (!formState) {
+      return;
+    }
+
+    const validationError = validateBookingFormState(formState);
+    if (validationError) {
+      setBookingErrors((current) => ({
+        ...current,
+        [bookingId]: validationError,
+      }));
+      return;
+    }
+
     try {
       const updatedBooking = await bookingService.update(
         bookingId,
-        bookingEdits[bookingId],
+        formState,
       );
       setBookings((current) =>
         current.map((booking) =>
@@ -133,7 +178,6 @@ export const BookingsPage = () => {
         ...current,
         [bookingId]: buildBookingFormState(updatedBooking),
       }));
-      setBookingErrors((current) => ({ ...current, [bookingId]: "" }));
     } catch (saveError) {
       setBookingErrors((current) => ({
         ...current,
