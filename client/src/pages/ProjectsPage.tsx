@@ -4,7 +4,10 @@ import { PageHeader } from "../components/PageHeader";
 import { StatusPanel } from "../components/StatusPanel";
 import { projectService } from "../services/projectService";
 import { taskService } from "../services/taskService";
-import type { ProjectCreatePayload, ProjectWithTaskCount } from "../types/models";
+import type {
+  ProjectCreatePayload,
+  ProjectWithTaskCount,
+} from "../types/models";
 import { buildProjectWithTaskCount } from "../utils/projectMetrics";
 import { useAuth } from "../hooks/useAuth";
 import { canCreateProject, canDeleteResources } from "../utils/permissions";
@@ -96,9 +99,7 @@ export const ProjectsPage = () => {
   }
 
   if (loadError) {
-    return (
-      <StatusPanel title="Projects unavailable" message={loadError} />
-    );
+    return <StatusPanel title="Projects unavailable" message={loadError} />;
   }
 
   return (

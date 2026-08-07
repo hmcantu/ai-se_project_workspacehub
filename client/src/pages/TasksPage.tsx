@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { PageHeader } from "../components/PageHeader";
 import { StatusPanel } from "../components/StatusPanel";
 import { useAuth } from "../hooks/useAuth";
@@ -60,7 +60,7 @@ export const TasksPage = () => {
   const [createError, setCreateError] = useState<string | null>(null);
   const [taskErrors, setTaskErrors] = useState<Record<string, string>>({});
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setCreateError(null);
 
@@ -91,11 +91,11 @@ export const TasksPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?._id]);
 
   useEffect(() => {
     void loadData();
-  }, [user?._id]);
+  }, [loadData]);
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -366,11 +366,7 @@ export const TasksPage = () => {
                         className={`${selectClassName} disabled:bg-slate-100`}
                         disabled={!canEdit}
                         onChange={(event) =>
-                          handleTaskEdit(
-                            task._id,
-                            "status",
-                            event.target.value,
-                          )
+                          handleTaskEdit(task._id, "status", event.target.value)
                         }
                         style={selectCaretStyle}
                         value={formState?.status ?? task.status}
