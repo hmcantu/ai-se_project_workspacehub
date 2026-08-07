@@ -14,7 +14,8 @@ export const listUsers = async (organizationId: string) => {
 export const getUserById = async (organizationId: string, id: string) => {
   const found = await User.findOne({ _id: id, organizationId });
   const user = assertFound(found, "User");
-  const { passwordHash: _passwordHash, ...userObject } = user.toObject();
+  const userObject = user.toObject();
+  delete (userObject as { passwordHash?: string }).passwordHash;
   return userObject;
 };
 
@@ -52,6 +53,7 @@ export const updateUser = async (
   }
 
   await user.save();
-  const { passwordHash: _passwordHash, ...userObject } = user.toObject();
+  const userObject = user.toObject();
+  delete (userObject as { passwordHash?: string }).passwordHash;
   return userObject;
 };

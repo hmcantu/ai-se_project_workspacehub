@@ -8,7 +8,12 @@ import eslintConfigPrettier from "eslint-config-prettier";
 export default tseslint.config(
   // Global Ignores
   {
-    ignores: ["**/dist/**", "**/build/**", "**/node_modules/**", "**/coverage/**"],
+    ignores: [
+      "**/dist/**",
+      "**/build/**",
+      "**/node_modules/**",
+      "**/coverage/**",
+    ],
   },
 
   // Base JS/TS configs
@@ -22,7 +27,7 @@ export default tseslint.config(
       ecmaVersion: 2022,
       globals: globals.browser,
       parserOptions: {
-        project: ["./client/tsconfig.json"],
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -51,7 +56,7 @@ export default tseslint.config(
       ecmaVersion: 2022,
       globals: globals.node,
       parserOptions: {
-        project: ["./server/tsconfig.json"],
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -65,5 +70,5 @@ export default tseslint.config(
   },
 
   // Disable formatting rules that conflict with Prettier
-  eslintConfigPrettier
+  eslintConfigPrettier,
 );

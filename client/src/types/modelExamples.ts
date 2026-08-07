@@ -29,4 +29,3 @@ export const exampleTask: Task = {
 
 export const exampleProjectWithTaskCount: ProjectWithTaskCount =
   buildProjectWithTaskCount(exampleProject, [exampleTask]);
-  

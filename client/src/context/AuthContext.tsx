@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -28,27 +29,26 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const applySession = (
-    nextToken: string,
-    nextUser: User,
-    nextOrganization: Organization,
-  ) => {
-    window.localStorage.setItem(STORAGE_KEY, nextToken);
-    setAuthToken(nextToken);
-    setToken(nextToken);
-    setUser(nextUser);
-    setOrganization(nextOrganization);
-  };
+  const applySession = useCallback(
+    (nextToken: string, nextUser: User, nextOrganization: Organization) => {
+      window.localStorage.setItem(STORAGE_KEY, nextToken);
+      setAuthToken(nextToken);
+      setToken(nextToken);
+      setUser(nextUser);
+      setOrganization(nextOrganization);
+    },
+    [],
+  );
 
-  const logout = () => {
+  const logout = useCallback(() => {
     window.localStorage.removeItem(STORAGE_KEY);
     setAuthToken(null);
     setToken(null);
     setUser(null);
     setOrganization(null);
-  };
+  }, []);
 
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
     if (!token) {
       logout();
       return;
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     const session = await authService.me();
     setUser(session.user);
     setOrganization(session.organization);
-  };
+  }, [token, logout]);
 
   useEffect(() => {
     const hydrate = async () => {
@@ -77,17 +77,37 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     };
 
     void hydrate();
-  }, []);
+  }, [token, refreshSession, logout]);
 
-  const login = async (payload: LoginPayload) => {
-    const session = await authService.login(payload);
-    applySession(session.token, session.user, session.organization);
-  };
+  const login = useCallback(
+    async (payload: LoginPayload) => {
+      const session = await authService.login(payload);
+      applySession(session.token, session.user, session.organization);
+    },
+    [applySession],
+  );
 
-  const register = async (payload: RegisterPayload) => {
-    const session = await authService.register(payload);
-    applySession(session.token, session.user, session.organization);
-  };
+  const register = useCallback(
+    async (payload: RegisterPayload) => {
+      const session = await authService.register(payload);
+      applySession(session.token, session.user, session.organization);
+    },
+    [applySession],
+  );
+
+  const hasRole = useCallback(
+    (...roles: UserRole[]) => {
+      return Boolean(user && roles.includes(user.role));
+    },
+    [user],
+  );
+
+  const isFeatureEnabled = useCallback(
+    (featureKey: keyof FeatureFlags) => {
+      return Boolean(organization?.featureFlags[featureKey]);
+    },
+    [organization],
+  );
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -101,14 +121,21 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       logout,
       refreshSession,
       setOrganizationState: setOrganization,
-      hasRole: (...roles: UserRole[]) => {
-        return Boolean(user && roles.includes(user.role));
-      },
-      isFeatureEnabled: (featureKey: keyof FeatureFlags) => {
-        return Boolean(organization?.featureFlags[featureKey]);
-      },
+      hasRole,
+      isFeatureEnabled,
     }),
-    [token, user, organization, loading],
+    [
+      token,
+      user,
+      organization,
+      loading,
+      login,
+      register,
+      logout,
+      refreshSession,
+      hasRole,
+      isFeatureEnabled,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

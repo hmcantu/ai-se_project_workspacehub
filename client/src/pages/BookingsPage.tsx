@@ -186,9 +186,7 @@ export const BookingsPage = () => {
 
     const formState =
       bookingEdits[bookingId] ??
-      buildBookingFormState(
-        bookings.find((item) => item._id === bookingId)!,
-      );
+      buildBookingFormState(bookings.find((item) => item._id === bookingId)!);
 
     const errors = validateBookingFormState(formState);
     if (Object.keys(errors).length > 0) {
@@ -205,10 +203,7 @@ export const BookingsPage = () => {
     }
 
     try {
-      const updatedBooking = await bookingService.update(
-        bookingId,
-        formState,
-      );
+      const updatedBooking = await bookingService.update(bookingId, formState);
       setBookings((current) =>
         current.map((booking) =>
           booking._id === bookingId ? updatedBooking : booking,
