@@ -76,3 +76,24 @@ export interface MePayload {
   user: User;
   organization: Organization;
 }
+
+export type ProjectCreatePayload = Pick<Project, "name" | "description">;
+
+export type ProjectUpdatePayload = Partial<ProjectCreatePayload>;
+
+export type TaskCreatePayload = Pick<
+  Task,
+  | "projectId"
+  | "title"
+  | "description"
+  | "status"
+  | "priority"
+  | "assignedTo"
+  | "dueDate"
+>;
+
+export type TaskUpdatePayload = Partial<TaskCreatePayload>;
+
+export interface ProjectWithTaskCount extends Project {
+  taskCount: number;
+}
