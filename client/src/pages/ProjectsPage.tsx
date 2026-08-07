@@ -3,27 +3,41 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { StatusPanel } from "../components/StatusPanel";
 import { projectService } from "../services/projectService";
-import type { Project } from "../types/models";
+import { taskService } from "../services/taskService";
+import type { ProjectCreatePayload, ProjectWithTaskCount } from "../types/models";
+import { buildProjectWithTaskCount } from "../utils/projectMetrics";
 import { useAuth } from "../hooks/useAuth";
 import { canDeleteResources } from "../utils/permissions";
 
 export const ProjectsPage = () => {
   const { user } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [formState, setFormState] = useState({ name: "", description: "" });
+  const [projects, setProjects] = useState<ProjectWithTaskCount[]>([]);
+  const [formState, setFormState] = useState<ProjectCreatePayload>({
+    name: "",
+    description: "",
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const loadProjects = async () => {
     setLoading(true);
-    setError(null);
+    setLoadError(null);
 
     try {
-      const nextProjects = await projectService.list();
-      setProjects(nextProjects);
+      const [fetchedProjects, fetchedTasks] = await Promise.all([
+        projectService.list(),
+        taskService.list(),
+      ]);
+
+      const projectsWithCount = fetchedProjects.map((project) =>
+        buildProjectWithTaskCount(project, fetchedTasks),
+      );
+
+      setProjects(projectsWithCount);
     } catch (error) {
-      setError(
+      setLoadError(
         error instanceof Error ? error.message : "Unable to load projects",
       );
     } finally {
@@ -38,14 +52,18 @@ export const ProjectsPage = () => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaving(true);
-    setError(null);
+    setActionError(null);
 
     try {
       const project = await projectService.create(formState);
-      setProjects((current) => [project, ...current]);
+      const newProjectWithCount: ProjectWithTaskCount = {
+        ...project,
+        taskCount: 0,
+      };
+      setProjects((current) => [newProjectWithCount, ...current]);
       setFormState({ name: "", description: "" });
     } catch (submitError) {
-      setError(
+      setActionError(
         submitError instanceof Error
           ? submitError.message
           : "Unable to create project",
@@ -56,13 +74,14 @@ export const ProjectsPage = () => {
   };
 
   const handleDelete = async (projectId: string) => {
+    setActionError(null);
     try {
       await projectService.delete(projectId);
       setProjects((current) =>
         current.filter((project) => project._id !== projectId),
       );
     } catch (deleteError) {
-      setError(
+      setActionError(
         deleteError instanceof Error
           ? deleteError.message
           : "Unable to delete project",
@@ -73,6 +92,12 @@ export const ProjectsPage = () => {
   if (loading) {
     return (
       <StatusPanel title="Loading projects" message="Fetching project list." />
+    );
+  }
+
+  if (loadError) {
+    return (
+      <StatusPanel title="Projects unavailable" message={loadError} />
     );
   }
 
@@ -111,7 +136,9 @@ export const ProjectsPage = () => {
               placeholder="Description"
               value={formState.description}
             />
-            {error ? <p className="text-sm text-danger">{error}</p> : null}
+            {actionError ? (
+              <p className="text-sm text-danger">{actionError}</p>
+            ) : null}
             <button
               className="rounded-[12px] bg-ink px-4 py-3 font-medium text-white transition hover:opacity-80 active:opacity-70 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={saving}
@@ -133,6 +160,10 @@ export const ProjectsPage = () => {
                       </h2>
                       <p className="mt-2 text-sm text-slate-600">
                         {project.description}
+                      </p>
+                      <p className="mt-2 text-sm text-slate-500">
+                        {project.taskCount}{" "}
+                        {project.taskCount === 1 ? "task" : "tasks"}
                       </p>
                     </div>
                     <div className="flex gap-2">
