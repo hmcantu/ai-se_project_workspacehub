@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
+    branches: ["main", "workspacehub-part-1"]
   pull_request:
+    branches: ["main", "workspacehub-part-1"]
 
 jobs:
   validate-server:
