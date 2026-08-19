@@ -1,7 +1,11 @@
 import { Organization } from "../models/Organization";
 import type { FeatureFlags } from "../types/domain";
 import { AppError } from "../utils/appError";
-import { parseBoolean, requireSlug, requireString } from "../utils/validators";
+import {
+  parseBoolean,
+  requireSlug,
+  requireStringLength,
+} from "../utils/validators";
 
 export const getCurrentOrganization = async (organizationId: string) => {
   const organization = await Organization.findById(organizationId);
@@ -15,19 +19,19 @@ export const getCurrentOrganization = async (organizationId: string) => {
 
 export const updateCurrentOrganization = async (
   organizationId: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ) => {
   const organization = await getCurrentOrganization(organizationId);
 
   if (payload.name !== undefined) {
-    organization.name = requireString(payload.name, "Name");
+    organization.name = requireStringLength(payload.name, "Name", 2);
   }
 
   if (payload.slug !== undefined) {
     const nextSlug = requireSlug(payload.slug);
     const duplicate = await Organization.findOne({
       slug: nextSlug,
-      _id: { $ne: organizationId }
+      _id: { $ne: organizationId },
     });
 
     if (duplicate) {
@@ -43,13 +47,13 @@ export const updateCurrentOrganization = async (
 
 export const updateOrganizationFeatureFlags = async (
   organizationId: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ) => {
   const organization = await getCurrentOrganization(organizationId);
   const currentFlags = organization.featureFlags ?? {
     scheduling: false,
     advancedReports: false,
-    customBranding: false
+    customBranding: false,
   };
 
   const nextFeatureFlags: FeatureFlags = {
@@ -64,7 +68,7 @@ export const updateOrganizationFeatureFlags = async (
     customBranding:
       payload.customBranding === undefined
         ? currentFlags.customBranding
-        : parseBoolean(payload.customBranding, "customBranding")
+        : parseBoolean(payload.customBranding, "customBranding"),
   };
 
   organization.featureFlags = nextFeatureFlags;

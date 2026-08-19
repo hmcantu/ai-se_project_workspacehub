@@ -4,7 +4,7 @@ import {
   deleteBookingController,
   getBookingController,
   listBookingsController,
-  updateBookingController
+  updateBookingController,
 } from "../controllers/bookingController";
 import { requireAuth } from "../middleware/auth";
 import { requireFeatureFlag } from "../middleware/requireFeatureFlag";
@@ -12,8 +12,8 @@ import { asyncHandler } from "../utils/asyncHandler";
 
 const router = Router();
 
-router.use(requireAuth);
-router.use(requireFeatureFlag("scheduling"));
+router.use(asyncHandler(requireAuth));
+router.use(asyncHandler(requireFeatureFlag("scheduling")));
 
 router.get("/", asyncHandler(listBookingsController));
 router.post("/", asyncHandler(createBookingController));

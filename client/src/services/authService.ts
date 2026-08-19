@@ -18,5 +18,5 @@ export const authService = {
     unwrapResponse<AuthSession>(api.post("/auth/login", payload)),
   register: (payload: RegisterPayload) =>
     unwrapResponse<AuthSession>(api.post("/auth/register", payload)),
-  me: () => unwrapResponse<MePayload>(api.get("/auth/me"))
+  me: () => unwrapResponse<MePayload>(api.get("/auth/me")),
 };

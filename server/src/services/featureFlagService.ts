@@ -14,16 +14,19 @@ export const getOrganizationFeatureFlags = async (organizationId: string) => {
 
 export const ensureFeatureEnabled = async (
   organizationId: string,
-  featureKey: FeatureFlagKey
+  featureKey: FeatureFlagKey,
 ) => {
   const featureFlags = await getOrganizationFeatureFlags(organizationId);
   const resolvedFeatureFlags = featureFlags ?? {
     scheduling: false,
     advancedReports: false,
-    customBranding: false
+    customBranding: false,
   };
 
   if (!resolvedFeatureFlags[featureKey]) {
-    throw new AppError(`${featureKey} is not enabled for this organization`, 403);
+    throw new AppError(
+      `${featureKey} is not enabled for this organization`,
+      403,
+    );
   }
 };

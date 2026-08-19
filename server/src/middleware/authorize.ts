@@ -9,7 +9,11 @@ export const requireRoles = (...roles: UserRole[]) => {
     }
 
     if (!roles.includes(req.auth.role)) {
-      return sendError(res, "You do not have permission to perform this action", 403);
+      return sendError(
+        res,
+        "You do not have permission to perform this action",
+        403,
+      );
     }
 
     return next();

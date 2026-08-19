@@ -7,7 +7,7 @@ export const LoginPage = () => {
   const { isAuthenticated, login } = useAuth();
   const [formState, setFormState] = useState({
     email: "owner@workspacehub.dev",
-    password: "Password123!"
+    password: "Password123!",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,9 @@ export const LoginPage = () => {
       await login(formState);
       navigate("/");
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Login failed");
+      setError(
+        submitError instanceof Error ? submitError.message : "Login failed",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -34,7 +36,7 @@ export const LoginPage = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,#d1fae5,transparent_35%),linear-gradient(135deg,#f8fafc,#e2e8f0)] px-4">
       <div className="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-xl">
-        <p className="text-sm uppercase tracking-[0.3em] text-brand">WorkspaceHub</p>
+        <p className="text-sm uppercase text-brand">WorkspaceHub</p>
         <h1 className="mt-3 text-3xl font-semibold text-ink">Sign in</h1>
         <p className="mt-2 text-sm text-slate-600">
           Use the seeded demo accounts or register a new organization.
@@ -45,9 +47,12 @@ export const LoginPage = () => {
               Email
             </label>
             <input
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+              className="w-full rounded-2xl border border-slate-200 transition hover:border-slate-300 px-4 py-3"
               onChange={(event) =>
-                setFormState((current) => ({ ...current, email: event.target.value }))
+                setFormState((current) => ({
+                  ...current,
+                  email: event.target.value,
+                }))
               }
               type="email"
               value={formState.email}
@@ -58,11 +63,11 @@ export const LoginPage = () => {
               Password
             </label>
             <input
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+              className="w-full rounded-2xl border border-slate-200 transition hover:border-slate-300 px-4 py-3"
               onChange={(event) =>
                 setFormState((current) => ({
                   ...current,
-                  password: event.target.value
+                  password: event.target.value,
                 }))
               }
               type="password"
@@ -71,7 +76,7 @@ export const LoginPage = () => {
           </div>
           {error ? <p className="text-sm text-danger">{error}</p> : null}
           <button
-            className="w-full rounded-2xl bg-ink px-4 py-3 font-medium text-white"
+            className="w-full rounded-[12px] bg-ink px-4 py-3 font-medium text-white transition hover:opacity-80 active:opacity-70 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={submitting}
             type="submit"
           >
@@ -80,7 +85,10 @@ export const LoginPage = () => {
         </form>
         <p className="mt-6 text-sm text-slate-600">
           Need a workspace?{" "}
-          <Link className="font-medium text-brand" to="/register">
+          <Link
+            className="font-medium text-brand transition hover:underline active:opacity-70"
+            to="/register"
+          >
             Register
           </Link>
         </p>

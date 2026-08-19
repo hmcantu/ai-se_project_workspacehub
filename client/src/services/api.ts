@@ -5,7 +5,7 @@ import type { ApiResponse } from "../types/api";
 const baseURL = `${import.meta.env.VITE_API_URL ?? "http://localhost:5001"}/api`;
 
 export const api = axios.create({
-  baseURL
+  baseURL,
 });
 
 export const setAuthToken = (token: string | null) => {
@@ -23,11 +23,11 @@ api.interceptors.response.use(
     const message =
       error.response?.data?.error?.message ?? error.message ?? "Request failed";
     return Promise.reject(new Error(message));
-  }
+  },
 );
 
 export const unwrapResponse = async <T>(
-  request: Promise<AxiosResponse<ApiResponse<T>>>
+  request: Promise<AxiosResponse<ApiResponse<T>>>,
 ) => {
   const response = await request;
 

@@ -6,6 +6,6 @@ export const userService = {
   getById: (id: string) => unwrapResponse<User>(api.get(`/users/${id}`)),
   update: (
     id: string,
-    payload: Partial<Pick<User, "firstName" | "lastName" | "role">>
-  ) => unwrapResponse<User>(api.patch(`/users/${id}`, payload))
+    payload: Partial<Pick<User, "firstName" | "lastName" | "role">>,
+  ) => unwrapResponse<User>(api.patch(`/users/${id}`, payload)),
 };

@@ -15,8 +15,8 @@ export const app = express();
 
 app.use(
   cors({
-    origin: env.clientOrigin
-  })
+    origin: env.clientOrigin,
+  }),
 );
 app.use(express.json());
 app.use(morgan("dev"));
@@ -25,9 +25,9 @@ app.get("/api/health", (_req, res) => {
   res.json({
     success: true,
     data: {
-      status: "ok"
+      status: "ok",
     },
-    error: null
+    error: null,
   });
 });
 

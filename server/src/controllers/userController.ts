@@ -12,7 +12,10 @@ export const getUserController = async (req: Request, res: Response) => {
   return sendSuccess(res, user);
 };
 
-export const updateUserController = async (req: Request, res: Response) => {
+export const updateUserController = async (
+  req: Request<Record<string, string>, unknown, Record<string, unknown>>,
+  res: Response,
+) => {
   const user = await updateUser(req.auth!, req.params.id, req.body);
   return sendSuccess(res, user);
 };

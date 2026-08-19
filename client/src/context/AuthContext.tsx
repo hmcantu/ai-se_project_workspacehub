@@ -1,63 +1,54 @@
 import {
-  createContext,
+  useCallback,
   useEffect,
   useMemo,
   useState,
-  type PropsWithChildren
+  type PropsWithChildren,
 } from "react";
-import { authService, type LoginPayload, type RegisterPayload } from "../services/authService";
+import {
+  authService,
+  type LoginPayload,
+  type RegisterPayload,
+} from "../services/authService";
 import { setAuthToken } from "../services/api";
 import type {
   FeatureFlags,
   Organization,
   User,
-  UserRole
+  UserRole,
 } from "../types/models";
-
-interface AuthContextValue {
-  token: string | null;
-  user: User | null;
-  organization: Organization | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-  login: (payload: LoginPayload) => Promise<void>;
-  register: (payload: RegisterPayload) => Promise<void>;
-  logout: () => void;
-  refreshSession: () => Promise<void>;
-  setOrganizationState: (organization: Organization) => void;
-  hasRole: (...roles: UserRole[]) => boolean;
-  isFeatureEnabled: (featureKey: keyof FeatureFlags) => boolean;
-}
+import { AuthContext, type AuthContextValue } from "./authContextDefinition";
 
 const STORAGE_KEY = "workspacehub_token";
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [token, setToken] = useState<string | null>(
-    window.localStorage.getItem(STORAGE_KEY)
+    window.localStorage.getItem(STORAGE_KEY),
   );
   const [user, setUser] = useState<User | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const applySession = (nextToken: string, nextUser: User, nextOrganization: Organization) => {
-    window.localStorage.setItem(STORAGE_KEY, nextToken);
-    setAuthToken(nextToken);
-    setToken(nextToken);
-    setUser(nextUser);
-    setOrganization(nextOrganization);
-  };
+  const applySession = useCallback(
+    (nextToken: string, nextUser: User, nextOrganization: Organization) => {
+      window.localStorage.setItem(STORAGE_KEY, nextToken);
+      setAuthToken(nextToken);
+      setToken(nextToken);
+      setUser(nextUser);
+      setOrganization(nextOrganization);
+    },
+    [],
+  );
 
-  const logout = () => {
+  const logout = useCallback(() => {
     window.localStorage.removeItem(STORAGE_KEY);
     setAuthToken(null);
     setToken(null);
     setUser(null);
     setOrganization(null);
-  };
+  }, []);
 
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
     if (!token) {
       logout();
       return;
@@ -67,7 +58,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     const session = await authService.me();
     setUser(session.user);
     setOrganization(session.organization);
-  };
+  }, [token, logout]);
 
   useEffect(() => {
     const hydrate = async () => {
@@ -86,17 +77,37 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     };
 
     void hydrate();
-  }, []);
+  }, [token, refreshSession, logout]);
 
-  const login = async (payload: LoginPayload) => {
-    const session = await authService.login(payload);
-    applySession(session.token, session.user, session.organization);
-  };
+  const login = useCallback(
+    async (payload: LoginPayload) => {
+      const session = await authService.login(payload);
+      applySession(session.token, session.user, session.organization);
+    },
+    [applySession],
+  );
 
-  const register = async (payload: RegisterPayload) => {
-    const session = await authService.register(payload);
-    applySession(session.token, session.user, session.organization);
-  };
+  const register = useCallback(
+    async (payload: RegisterPayload) => {
+      const session = await authService.register(payload);
+      applySession(session.token, session.user, session.organization);
+    },
+    [applySession],
+  );
+
+  const hasRole = useCallback(
+    (...roles: UserRole[]) => {
+      return Boolean(user && roles.includes(user.role));
+    },
+    [user],
+  );
+
+  const isFeatureEnabled = useCallback(
+    (featureKey: keyof FeatureFlags) => {
+      return Boolean(organization?.featureFlags[featureKey]);
+    },
+    [organization],
+  );
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -110,14 +121,21 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       logout,
       refreshSession,
       setOrganizationState: setOrganization,
-      hasRole: (...roles: UserRole[]) => {
-        return Boolean(user && roles.includes(user.role));
-      },
-      isFeatureEnabled: (featureKey: keyof FeatureFlags) => {
-        return Boolean(organization?.featureFlags[featureKey]);
-      }
+      hasRole,
+      isFeatureEnabled,
     }),
-    [token, user, organization, loading]
+    [
+      token,
+      user,
+      organization,
+      loading,
+      login,
+      register,
+      logout,
+      refreshSession,
+      hasRole,
+      isFeatureEnabled,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

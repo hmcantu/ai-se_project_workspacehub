@@ -5,9 +5,7 @@ export type TaskStatus = "todo" | "in_progress" | "done";
 export type TaskPriority = "low" | "medium" | "high";
 
 export type FeatureFlagKey =
-  | "scheduling"
-  | "advancedReports"
-  | "customBranding";
+  "scheduling" | "advancedReports" | "customBranding";
 
 export interface FeatureFlags {
   scheduling: boolean;

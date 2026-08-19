@@ -2,13 +2,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { Organization } from "../models/Organization";
-import { User } from "../models/User";
+import { User, type UserDocument } from "../models/User";
 import { AppError } from "../utils/appError";
 import {
   requireEmail,
   requirePassword,
   requireSlug,
-  requireString
+  requireString,
 } from "../utils/validators";
 
 const signToken = (payload: {
@@ -19,7 +19,7 @@ const signToken = (payload: {
   return jwt.sign(payload, env.jwtSecret, { expiresIn: "7d" });
 };
 
-const sanitizeUser = (user: any) => {
+const sanitizeUser = (user: UserDocument) => {
   return {
     _id: String(user._id),
     firstName: user.firstName,
@@ -28,7 +28,7 @@ const sanitizeUser = (user: any) => {
     organizationId: String(user.organizationId),
     role: user.role,
     createdAt: user.createdAt,
-    updatedAt: user.updatedAt
+    updatedAt: user.updatedAt,
   };
 };
 
@@ -39,7 +39,7 @@ export const register = async (payload: Record<string, unknown>) => {
   const password = requirePassword(payload.password);
   const organizationName = requireString(
     payload.organizationName,
-    "Organization name"
+    "Organization name",
   );
   const organizationSlug = requireSlug(payload.organizationSlug);
 
@@ -48,7 +48,9 @@ export const register = async (payload: Record<string, unknown>) => {
     throw new AppError("A user with this email already exists", 409);
   }
 
-  const existingOrganization = await Organization.findOne({ slug: organizationSlug });
+  const existingOrganization = await Organization.findOne({
+    slug: organizationSlug,
+  });
   if (existingOrganization) {
     throw new AppError("An organization with this slug already exists", 409);
   }
@@ -59,8 +61,8 @@ export const register = async (payload: Record<string, unknown>) => {
     featureFlags: {
       scheduling: true,
       advancedReports: true,
-      customBranding: true
-    }
+      customBranding: true,
+    },
   });
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -71,19 +73,19 @@ export const register = async (payload: Record<string, unknown>) => {
     email,
     passwordHash,
     organizationId: organization._id,
-    role: "owner"
+    role: "owner",
   });
 
   const token = signToken({
     userId: String(user._id),
     organizationId: String(organization._id),
-    role: "owner"
+    role: "owner",
   });
 
   return {
     token,
     user: sanitizeUser(user.toObject()),
-    organization
+    organization,
   };
 };
 
@@ -109,13 +111,13 @@ export const login = async (payload: Record<string, unknown>) => {
   const token = signToken({
     userId: String(user._id),
     organizationId: String(user.organizationId),
-    role: user.role
+    role: user.role,
   });
 
   return {
     token,
     user: sanitizeUser(user.toObject()),
-    organization
+    organization,
   };
 };
 
@@ -132,6 +134,6 @@ export const getCurrentAuthUser = async (userId: string) => {
 
   return {
     user: sanitizeUser(user.toObject()),
-    organization
+    organization,
   };
 };

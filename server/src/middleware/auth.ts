@@ -8,7 +8,7 @@ import { sendError } from "../utils/apiResponse";
 export const requireAuth = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const authorizationHeader = req.headers.authorization;
 
@@ -29,7 +29,7 @@ export const requireAuth = async (
     req.auth = {
       userId: String(user._id),
       organizationId: String(user.organizationId),
-      role: user.role
+      role: user.role,
     };
 
     return next();

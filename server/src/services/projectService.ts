@@ -1,12 +1,9 @@
 import { Project } from "../models/Project";
 import type { AuthPayload } from "../types/domain";
 import { AppError } from "../utils/appError";
-import { findByIdInOrganization } from "../utils/scopedQuery";
-import { optionalString, requireString } from "../utils/validators";
-import {
-  canDeleteResource,
-  canManageProject
-} from "./permissionService";
+import { assertFound } from "../utils/scopedQuery";
+import { optionalString, requireStringLength } from "../utils/validators";
+import { canDeleteResource, canManageProject } from "./permissionService";
 
 export const listProjects = async (organizationId: string) => {
   return Project.find({ organizationId }).sort({ createdAt: -1 });
@@ -14,36 +11,40 @@ export const listProjects = async (organizationId: string) => {
 
 export const createProject = async (
   actor: AuthPayload,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ) => {
-  const name = requireString(payload.name, "Name");
+  const name = requireStringLength(payload.name, "Name", 2);
   const description = optionalString(payload.description) ?? "";
 
   return Project.create({
     organizationId: actor.organizationId,
     name,
     description,
-    createdBy: actor.userId
+    createdBy: actor.userId,
   });
 };
 
 export const getProjectById = async (organizationId: string, id: string) => {
-  return findByIdInOrganization(Project, id, organizationId, "Project");
+  const project = await Project.findOne({ _id: id, organizationId });
+  return assertFound(project, "Project");
 };
 
 export const updateProject = async (
   actor: AuthPayload,
   id: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ) => {
   const project = await getProjectById(actor.organizationId, id);
 
   if (!canManageProject(actor, String(project.createdBy))) {
-    throw new AppError("You do not have permission to update this project", 403);
+    throw new AppError(
+      "You do not have permission to update this project",
+      403,
+    );
   }
 
   if (payload.name !== undefined) {
-    project.name = requireString(payload.name, "Name");
+    project.name = requireStringLength(payload.name, "Name", 2);
   }
 
   if (payload.description !== undefined) {
@@ -58,7 +59,10 @@ export const deleteProject = async (actor: AuthPayload, id: string) => {
   const project = await getProjectById(actor.organizationId, id);
 
   if (!canDeleteResource(actor)) {
-    throw new AppError("You do not have permission to delete this project", 403);
+    throw new AppError(
+      "You do not have permission to delete this project",
+      403,
+    );
   }
 
   await project.deleteOne();

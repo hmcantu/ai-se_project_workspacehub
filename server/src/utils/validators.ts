@@ -3,7 +3,7 @@ import type {
   FeatureFlagKey,
   TaskPriority,
   TaskStatus,
-  UserRole
+  UserRole,
 } from "../types/domain";
 
 export const requireString = (value: unknown, field: string): string => {
@@ -12,6 +12,20 @@ export const requireString = (value: unknown, field: string): string => {
   }
 
   return value.trim();
+};
+
+export const requireStringLength = (
+  value: unknown,
+  field: string,
+  length: number,
+): string => {
+  const s = requireString(value, field);
+
+  if (s.trim().length < length) {
+    throw new AppError(`${field} must be at least ${length} characters`, 400);
+  }
+
+  return s.trim();
 };
 
 export const optionalString = (value: unknown): string | undefined => {
@@ -51,7 +65,7 @@ export const requireSlug = (value: unknown): string => {
   if (!slugRegex.test(slug)) {
     throw new AppError(
       "Slug may only contain lowercase letters, numbers, and hyphens",
-      400
+      400,
     );
   }
 

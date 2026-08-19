@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Checkbox } from "../components/Checkbox";
 import { PageHeader } from "../components/PageHeader";
 import { useAuth } from "../hooks/useAuth";
 import { organizationService } from "../services/organizationService";
@@ -11,8 +12,8 @@ export const FeatureFlagsPage = () => {
     organization?.featureFlags ?? {
       scheduling: false,
       advancedReports: false,
-      customBranding: false
-    }
+      customBranding: false,
+    },
   );
   const [status, setStatus] = useState<string | null>(null);
   const canEdit = isPrivilegedRole(user?.role);
@@ -21,12 +22,17 @@ export const FeatureFlagsPage = () => {
     setStatus(null);
 
     try {
-      const nextOrganization = await organizationService.updateFeatureFlags(flags);
+      const nextOrganization =
+        await organizationService.updateFeatureFlags(flags);
       setOrganizationState(nextOrganization);
       setFlags(nextOrganization.featureFlags);
       setStatus("Feature flags updated.");
     } catch (saveError) {
-      setStatus(saveError instanceof Error ? saveError.message : "Unable to update flags");
+      setStatus(
+        saveError instanceof Error
+          ? saveError.message
+          : "Unable to update flags",
+      );
     }
   };
 
@@ -36,37 +42,39 @@ export const FeatureFlagsPage = () => {
         description="Control which product areas are available for the current organization."
         title="Feature flags"
       />
-      <div className="max-w-3xl rounded-3xl bg-white p-6 shadow-sm">
-        <div className="space-y-4">
+      <div className="rounded-[20px] bg-white p-8 shadow-sm">
+        <ul className="space-y-4">
           {Object.entries(flags).map(([flagKey, enabled]) => (
-            <label
-              className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-4"
+            <li
+              className="flex items-center justify-between rounded-[12px] border border-slate-200 p-[18px]"
               key={flagKey}
             >
               <div>
-                <p className="font-medium text-ink">{flagKey.replace(/([A-Z])/g, " $1")}</p>
-                <p className="text-sm text-slate-500">
+                <p className="text-xl font-semibold text-ink">
+                  {flagKey.replace(/([A-Z])/g, " $1")}
+                </p>
+                <p className="text-[13px] text-slate-500">
                   Toggle organization access for this feature area.
                 </p>
               </div>
-              <input
+              <Checkbox
                 checked={enabled}
-                className="h-5 w-5 accent-brand"
                 disabled={!canEdit}
-                onChange={(event) =>
+                onChange={(checked) =>
                   setFlags((current) => ({
                     ...current,
-                    [flagKey]: event.target.checked
+                    [flagKey]: checked,
                   }))
                 }
-                type="checkbox"
               />
-            </label>
+            </li>
           ))}
-        </div>
-        {status ? <p className="mt-4 text-sm text-slate-600">{status}</p> : null}
+        </ul>
+        {status ? (
+          <p className="mt-4 text-sm text-slate-600">{status}</p>
+        ) : null}
         <button
-          className="mt-6 rounded-2xl bg-ink px-4 py-3 font-medium text-white disabled:bg-slate-300"
+          className="mt-6 rounded-[12px] bg-ink px-6 py-3 font-medium text-white transition hover:opacity-80 active:opacity-70 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!canEdit}
           onClick={() => void handleSave()}
           type="button"

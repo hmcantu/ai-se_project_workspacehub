@@ -14,7 +14,7 @@ const seed = async () => {
     Task.deleteMany({}),
     Project.deleteMany({}),
     User.deleteMany({}),
-    Organization.deleteMany({})
+    Organization.deleteMany({}),
   ]);
 
   const organization = await Organization.create({
@@ -23,8 +23,8 @@ const seed = async () => {
     featureFlags: {
       scheduling: true,
       advancedReports: true,
-      customBranding: true
-    }
+      customBranding: true,
+    },
   });
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
@@ -36,7 +36,7 @@ const seed = async () => {
       email: "owner@workspacehub.dev",
       passwordHash,
       organizationId: organization._id,
-      role: "owner"
+      role: "owner",
     },
     {
       firstName: "Aiden",
@@ -44,7 +44,7 @@ const seed = async () => {
       email: "admin@workspacehub.dev",
       passwordHash,
       organizationId: organization._id,
-      role: "admin"
+      role: "admin",
     },
     {
       firstName: "Maya",
@@ -52,8 +52,8 @@ const seed = async () => {
       email: "member@workspacehub.dev",
       passwordHash,
       organizationId: organization._id,
-      role: "member"
-    }
+      role: "member",
+    },
   ]);
 
   const [projectOne, projectTwo] = await Project.create([
@@ -61,14 +61,15 @@ const seed = async () => {
       organizationId: organization._id,
       name: "Platform Refresh",
       description: "Revamp the internal platform dashboard and delivery flow.",
-      createdBy: owner._id
+      createdBy: owner._id,
     },
     {
       organizationId: organization._id,
       name: "Customer Portal",
-      description: "Deliver a lightweight self-service portal for client requests.",
-      createdBy: admin._id
-    }
+      description:
+        "Deliver a lightweight self-service portal for client requests.",
+      createdBy: admin._id,
+    },
   ]);
 
   await Task.create([
@@ -80,7 +81,7 @@ const seed = async () => {
       status: "todo",
       priority: "medium",
       assignedTo: member._id,
-      dueDate: new Date("2026-04-08T17:00:00.000Z")
+      dueDate: new Date("2026-04-08T17:00:00.000Z"),
     },
     {
       organizationId: organization._id,
@@ -90,7 +91,7 @@ const seed = async () => {
       status: "in_progress",
       priority: "high",
       assignedTo: admin._id,
-      dueDate: new Date("2026-04-10T16:00:00.000Z")
+      dueDate: new Date("2026-04-10T16:00:00.000Z"),
     },
     {
       organizationId: organization._id,
@@ -100,7 +101,7 @@ const seed = async () => {
       status: "todo",
       priority: "high",
       assignedTo: owner._id,
-      dueDate: new Date("2026-04-12T18:00:00.000Z")
+      dueDate: new Date("2026-04-12T18:00:00.000Z"),
     },
     {
       organizationId: organization._id,
@@ -110,7 +111,7 @@ const seed = async () => {
       status: "done",
       priority: "low",
       assignedTo: member._id,
-      dueDate: new Date("2026-04-04T15:00:00.000Z")
+      dueDate: new Date("2026-04-04T15:00:00.000Z"),
     },
     {
       organizationId: organization._id,
@@ -120,8 +121,8 @@ const seed = async () => {
       status: "in_progress",
       priority: "medium",
       assignedTo: owner._id,
-      dueDate: new Date("2026-04-15T19:00:00.000Z")
-    }
+      dueDate: new Date("2026-04-15T19:00:00.000Z"),
+    },
   ]);
 
   await Booking.create([
@@ -131,7 +132,7 @@ const seed = async () => {
       description: "Weekly team planning block.",
       startsAt: new Date("2026-04-06T14:00:00.000Z"),
       endsAt: new Date("2026-04-06T15:00:00.000Z"),
-      createdBy: owner._id
+      createdBy: owner._id,
     },
     {
       organizationId: organization._id,
@@ -139,8 +140,8 @@ const seed = async () => {
       description: "Feature walkthrough with the delivery team.",
       startsAt: new Date("2026-04-06T16:00:00.000Z"),
       endsAt: new Date("2026-04-06T17:00:00.000Z"),
-      createdBy: admin._id
-    }
+      createdBy: admin._id,
+    },
   ]);
 
   console.log("Seed complete");

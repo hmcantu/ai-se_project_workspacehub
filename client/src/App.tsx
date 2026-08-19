@@ -31,7 +31,10 @@ export const App = () => {
           <Route path="projects/:id" element={<ProjectDetailsPage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="bookings" element={<BookingsPage />} />
-          <Route path="settings/organization" element={<OrganizationSettingsPage />} />
+          <Route
+            path="settings/organization"
+            element={<OrganizationSettingsPage />}
+          />
           <Route path="settings/features" element={<FeatureFlagsPage />} />
         </Route>
         <Route path="/404" element={<NotFoundPage />} />

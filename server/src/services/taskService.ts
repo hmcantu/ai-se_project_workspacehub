@@ -1,23 +1,28 @@
+import { Types } from "mongoose";
 import { Project } from "../models/Project";
 import { Task } from "../models/Task";
 import { User } from "../models/User";
 import type { AuthPayload } from "../types/domain";
 import { AppError } from "../utils/appError";
-import { findByIdInOrganization } from "../utils/scopedQuery";
+import { assertFound } from "../utils/scopedQuery";
 import {
   optionalString,
   parseDate,
   parseTaskPriority,
   parseTaskStatus,
-  requireString
+  requireString,
+  requireStringLength,
 } from "../utils/validators";
 import {
   canDeleteResource,
   canUpdateTask,
-  isPrivilegedRole
+  isPrivilegedRole,
 } from "./permissionService";
 
-const ensureProjectInOrganization = async (projectId: string, organizationId: string) => {
+const ensureProjectInOrganization = async (
+  projectId: string,
+  organizationId: string,
+) => {
   const project = await Project.findOne({ _id: projectId, organizationId });
 
   if (!project) {
@@ -27,7 +32,7 @@ const ensureProjectInOrganization = async (projectId: string, organizationId: st
 
 const ensureAssigneeInOrganization = async (
   assignedTo: string,
-  organizationId: string
+  organizationId: string,
 ) => {
   const user = await User.findOne({ _id: assignedTo, organizationId });
 
@@ -43,18 +48,24 @@ export const listTasks = async (organizationId: string, projectId?: string) => {
 
 export const createTask = async (
   actor: AuthPayload,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ) => {
-  const title = requireString(payload.title, "Title");
+  const title = requireStringLength(payload.title, "Title", 2);
   const projectId = requireString(payload.projectId, "Project ID");
   const description = optionalString(payload.description) ?? "";
   const status =
     payload.status === undefined ? "todo" : parseTaskStatus(payload.status);
   const priority =
-    payload.priority === undefined ? "medium" : parseTaskPriority(payload.priority);
-  const dueDate = payload.dueDate ? parseDate(payload.dueDate, "Due date") : null;
+    payload.priority === undefined
+      ? "medium"
+      : parseTaskPriority(payload.priority);
+  const dueDate = payload.dueDate
+    ? parseDate(payload.dueDate, "Due date")
+    : null;
   const assignedTo =
-    payload.assignedTo === undefined ? null : requireString(payload.assignedTo, "Assigned user");
+    payload.assignedTo === undefined
+      ? null
+      : requireString(payload.assignedTo, "Assigned user");
 
   await ensureProjectInOrganization(projectId, actor.organizationId);
 
@@ -62,7 +73,11 @@ export const createTask = async (
     await ensureAssigneeInOrganization(assignedTo, actor.organizationId);
   }
 
-  if (!isPrivilegedRole(actor.role) && assignedTo && assignedTo !== actor.userId) {
+  if (
+    !isPrivilegedRole(actor.role) &&
+    assignedTo &&
+    assignedTo !== actor.userId
+  ) {
     throw new AppError("Members can only assign tasks to themselves", 403);
   }
 
@@ -74,18 +89,19 @@ export const createTask = async (
     status,
     priority,
     assignedTo,
-    dueDate
+    dueDate,
   });
 };
 
 export const getTaskById = async (organizationId: string, id: string) => {
-  return findByIdInOrganization(Task, id, organizationId, "Task");
+  const task = await Task.findOne({ _id: id, organizationId });
+  return assertFound(task, "Task");
 };
 
 export const updateTask = async (
   actor: AuthPayload,
   id: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ) => {
   const task = await getTaskById(actor.organizationId, id);
 
@@ -100,11 +116,11 @@ export const updateTask = async (
 
     const projectId = requireString(payload.projectId, "Project ID");
     await ensureProjectInOrganization(projectId, actor.organizationId);
-    task.projectId = projectId;
+    task.projectId = new Types.ObjectId(projectId);
   }
 
   if (payload.title !== undefined) {
-    task.title = requireString(payload.title, "Title");
+    task.title = requireStringLength(payload.title, "Title", 2);
   }
 
   if (payload.description !== undefined) {
@@ -120,7 +136,9 @@ export const updateTask = async (
   }
 
   if (payload.dueDate !== undefined) {
-    task.dueDate = payload.dueDate ? parseDate(payload.dueDate, "Due date") : null;
+    task.dueDate = payload.dueDate
+      ? parseDate(payload.dueDate, "Due date")
+      : null;
   }
 
   if (payload.assignedTo !== undefined) {
@@ -133,7 +151,7 @@ export const updateTask = async (
     } else {
       const assignedTo = requireString(payload.assignedTo, "Assigned user");
       await ensureAssigneeInOrganization(assignedTo, actor.organizationId);
-      task.assignedTo = assignedTo;
+      task.assignedTo = new Types.ObjectId(assignedTo);
     }
   }
 

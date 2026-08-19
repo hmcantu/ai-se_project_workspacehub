@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Checkbox } from "../components/Checkbox";
 import { PageHeader } from "../components/PageHeader";
 import { StatusPanel } from "../components/StatusPanel";
 import { bookingService } from "../services/bookingService";
@@ -8,7 +9,7 @@ import { taskService } from "../services/taskService";
 import { userService } from "../services/userService";
 import { useAuth } from "../hooks/useAuth";
 import type { Booking, Project, Task, User } from "../types/models";
-import { formatDateInput, formatDateTime } from "../utils/date";
+import { formatDateTime } from "../utils/date";
 
 interface DashboardData {
   projects: Project[];
@@ -17,13 +18,19 @@ interface DashboardData {
   bookings: Booking[];
 }
 
+const statusBadgeStyles: Record<Task["status"], string> = {
+  todo: "bg-[#cfe7ff] text-ink",
+  in_progress: "bg-amber-100 text-amber-800",
+  done: "bg-[#dcf2ed] text-success",
+};
+
 export const DashboardPage = () => {
   const { organization, isFeatureEnabled } = useAuth();
   const [data, setData] = useState<DashboardData>({
     projects: [],
     tasks: [],
     users: [],
-    bookings: []
+    bookings: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,12 +45,18 @@ export const DashboardPage = () => {
           projectService.list(),
           taskService.list(),
           userService.list(),
-          isFeatureEnabled("scheduling") ? bookingService.list() : Promise.resolve([])
+          isFeatureEnabled("scheduling")
+            ? bookingService.list()
+            : Promise.resolve([]),
         ]);
 
         setData({ projects, tasks, users, bookings });
       } catch (loadError) {
-        setError(loadError instanceof Error ? loadError.message : "Unable to load dashboard");
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Unable to load dashboard",
+        );
       } finally {
         setLoading(false);
       }
@@ -55,12 +68,20 @@ export const DashboardPage = () => {
   const upcomingTasks = [...data.tasks]
     .filter((task) => task.dueDate)
     .sort((left, right) => {
-      return new Date(left.dueDate ?? "").getTime() - new Date(right.dueDate ?? "").getTime();
+      return (
+        new Date(left.dueDate ?? "").getTime() -
+        new Date(right.dueDate ?? "").getTime()
+      );
     })
     .slice(0, 5);
 
   if (loading) {
-    return <StatusPanel title="Loading dashboard" message="Fetching workspace data." />;
+    return (
+      <StatusPanel
+        title="Loading dashboard"
+        message="Fetching workspace data."
+      />
+    );
   }
 
   if (error) {
@@ -74,53 +95,71 @@ export const DashboardPage = () => {
         title={`Welcome to ${organization?.name ?? "WorkspaceHub"}`}
       />
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <article className="rounded-3xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Members</p>
-          <p className="mt-2 text-4xl font-semibold text-ink">{data.users.length}</p>
+        <article className="rounded-[20px] bg-white p-4 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Members</p>
+          <p className="mt-1 text-2xl font-extrabold text-ink">
+            {data.users.length}
+          </p>
         </article>
-        <article className="rounded-3xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Projects</p>
-          <p className="mt-2 text-4xl font-semibold text-ink">{data.projects.length}</p>
+        <article className="rounded-[20px] bg-white p-4 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Projects</p>
+          <p className="mt-1 text-2xl font-extrabold text-ink">
+            {data.projects.length}
+          </p>
         </article>
-        <article className="rounded-3xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Tasks</p>
-          <p className="mt-2 text-4xl font-semibold text-ink">{data.tasks.length}</p>
+        <article className="rounded-[20px] bg-white p-4 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Tasks</p>
+          <p className="mt-1 text-2xl font-extrabold text-ink">
+            {data.tasks.length}
+          </p>
         </article>
-        <article className="rounded-3xl bg-white p-6 shadow-sm">
-          <p className="text-sm text-slate-500">Bookings</p>
-          <p className="mt-2 text-4xl font-semibold text-ink">
+        <article className="rounded-[20px] bg-white p-4 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Bookings</p>
+          <p className="mt-1 text-2xl font-extrabold text-ink">
             {isFeatureEnabled("scheduling") ? data.bookings.length : "Off"}
           </p>
         </article>
       </section>
       <section className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
+        <div className="rounded-[20px] bg-white p-8 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-ink">Upcoming task deadlines</h2>
-            <Link className="text-sm font-medium text-brand" to="/tasks">
+            <h2 className="text-xl font-bold text-ink">
+              Upcoming task deadlines
+            </h2>
+            <Link
+              className="text-sm font-semibold text-success transition hover:underline active:opacity-70"
+              to="/tasks"
+            >
               Manage tasks
             </Link>
           </div>
-          <div className="mt-4 space-y-3">
+          <div className="mt-4">
             {upcomingTasks.length ? (
-              upcomingTasks.map((task) => (
-                <div
-                  className="rounded-2xl border border-slate-200 px-4 py-3"
-                  key={task._id}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h3 className="font-medium text-ink">{task.title}</h3>
-                      <p className="text-sm text-slate-500">
-                        Due {formatDateTime(task.dueDate)}
-                      </p>
+              <ul className="space-y-3">
+                {upcomingTasks.map((task) => (
+                  <li
+                    className="rounded-[12px] border border-slate-200 p-[18px]"
+                    key={task._id}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h3 className="font-semibold text-ink">{task.title}</h3>
+                        <p className="text-[13px] text-slate-500">
+                          Due {formatDateTime(task.dueDate)}
+                        </p>
+                      </div>
+                      <span
+                        className={[
+                          "rounded-[6px] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide",
+                          statusBadgeStyles[task.status],
+                        ].join(" ")}
+                      >
+                        {task.status.replace("_", " ")}
+                      </span>
                     </div>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600">
-                      {task.status.replace("_", " ")}
-                    </span>
-                  </div>
-                </div>
-              ))
+                  </li>
+                ))}
+              </ul>
             ) : (
               <StatusPanel
                 title="No upcoming tasks"
@@ -130,47 +169,68 @@ export const DashboardPage = () => {
           </div>
         </div>
         <div className="space-y-6">
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-ink">Feature flags</h2>
-            <div className="mt-4 space-y-3">
-              {Object.entries(organization?.featureFlags ?? {}).map(([key, value]) => (
-                <div
-                  className="flex items-center justify-between rounded-2xl bg-panel px-4 py-3"
-                  key={key}
+          <div className="rounded-[20px] bg-white p-8 shadow-sm">
+            <h2 className="text-xl font-bold text-ink">Members</h2>
+            <ul className="mt-4 space-y-3">
+              {data.users.slice(0, 4).map((user) => (
+                <li
+                  className="flex items-center justify-between rounded-[12px] border border-slate-200 p-[18px]"
+                  key={user._id}
                 >
-                  <span className="text-sm font-medium capitalize text-slate-700">
-                    {key.replace(/([A-Z])/g, " $1")}
+                  <div>
+                    <h3 className="font-semibold text-ink">
+                      {user.firstName} {user.lastName}
+                    </h3>
+                    <p className="text-[13px] text-slate-500">{user.email}</p>
+                  </div>
+                  <span className="text-sm capitalize font-medium text-slate-500">
+                    {user.role}
                   </span>
-                  <span
-                    className={[
-                      "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
-                      value ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"
-                    ].join(" ")}
-                  >
-                    {value ? "Enabled" : "Disabled"}
-                  </span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-ink">Scheduling</h2>
+          <div className="rounded-[20px] bg-white p-8 shadow-sm">
+            <h2 className="text-xl font-bold text-ink">Feature flags</h2>
+            <ul className="mt-4 space-y-3">
+              {Object.entries(organization?.featureFlags ?? {}).map(
+                ([key, value]) => (
+                  <li
+                    className="flex items-center justify-between rounded-[12px] border border-slate-200 p-[18px]"
+                    key={key}
+                  >
+                    <span className="font-semibold capitalize text-ink">
+                      {key.replace(/([A-Z])/g, " $1")}
+                    </span>
+                    <Checkbox checked={value} disabled />
+                  </li>
+                ),
+              )}
+            </ul>
+          </div>
+          <div className="rounded-[20px] bg-white p-8 shadow-sm">
+            <h2 className="text-xl font-bold text-ink">Scheduling</h2>
             {isFeatureEnabled("scheduling") ? (
-              <div className="mt-4 space-y-3">
+              <div className="mt-4">
                 {data.bookings.length ? (
-                  data.bookings.slice(0, 3).map((booking) => (
-                    <div
-                      className="rounded-2xl border border-slate-200 px-4 py-3"
-                      key={booking._id}
-                    >
-                      <p className="font-medium text-ink">{booking.title}</p>
-                      <p className="text-sm text-slate-500">
-                        {formatDateTime(booking.startsAt)} to {formatDateTime(booking.endsAt)}
-                      </p>
-                    </div>
-                  ))
+                  <ul className="space-y-3">
+                    {data.bookings.slice(0, 3).map((booking) => (
+                      <li
+                        className="rounded-2xl border border-slate-200 px-4 py-3"
+                        key={booking._id}
+                      >
+                        <p className="font-medium text-ink">{booking.title}</p>
+                        <p className="text-sm text-slate-500">
+                          {formatDateTime(booking.startsAt)} to{" "}
+                          {formatDateTime(booking.endsAt)}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
-                  <p className="mt-4 text-sm text-slate-500">No upcoming bookings yet.</p>
+                  <p className="mt-4 text-sm text-slate-500">
+                    No upcoming bookings yet.
+                  </p>
                 )}
               </div>
             ) : (

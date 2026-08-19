@@ -6,21 +6,21 @@ export const isPrivilegedRole = (role: UserRole): boolean => {
 
 export const canManageProject = (
   actor: AuthPayload,
-  createdBy: string | null | undefined
+  createdBy: string | null | undefined,
 ): boolean => {
   return isPrivilegedRole(actor.role) || actor.userId === String(createdBy);
 };
 
 export const canUpdateTask = (
   actor: AuthPayload,
-  assignedTo: string | null | undefined
+  assignedTo: string | null | undefined,
 ): boolean => {
   return isPrivilegedRole(actor.role) || actor.userId === String(assignedTo);
 };
 
 export const canManageBooking = (
   actor: AuthPayload,
-  createdBy: string | null | undefined
+  createdBy: string | null | undefined,
 ): boolean => {
   return isPrivilegedRole(actor.role) || actor.userId === String(createdBy);
 };
@@ -31,7 +31,7 @@ export const canDeleteResource = (actor: AuthPayload): boolean => {
 
 export const canManageUsers = (
   actor: AuthPayload,
-  targetUserId: string
+  targetUserId: string,
 ): boolean => {
   return isPrivilegedRole(actor.role) || actor.userId === targetUserId;
 };
@@ -39,13 +39,16 @@ export const canManageUsers = (
 export const canChangeUserRole = (
   actor: AuthPayload,
   targetRole: UserRole,
-  currentTargetRole: UserRole
+  currentTargetRole: UserRole,
 ): boolean => {
   if (!isPrivilegedRole(actor.role)) {
     return false;
   }
 
-  if (actor.role === "admin" && (targetRole === "owner" || currentTargetRole === "owner")) {
+  if (
+    actor.role === "admin" &&
+    (targetRole === "owner" || currentTargetRole === "owner")
+  ) {
     return false;
   }
 

@@ -1,40 +1,45 @@
-import { Schema, model, type InferSchemaType } from "mongoose";
+import { Schema, model, Types, type InferSchemaType } from "mongoose";
 
 const organizationSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     slug: {
       type: String,
       required: true,
       unique: true,
-      trim: true
+      trim: true,
     },
     featureFlags: {
       scheduling: {
         type: Boolean,
-        default: true
+        default: true,
       },
       advancedReports: {
         type: Boolean,
-        default: true
+        default: true,
       },
       customBranding: {
         type: Boolean,
-        default: true
-      }
-    }
+        default: true,
+      },
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-export type OrganizationDocument = InferSchemaType<typeof organizationSchema> & {
-  _id: string;
+export type OrganizationDocument = InferSchemaType<
+  typeof organizationSchema
+> & {
+  _id: Types.ObjectId;
 };
 
-export const Organization = model("Organization", organizationSchema);
+export const Organization = model<OrganizationDocument>(
+  "Organization",
+  organizationSchema,
+);

@@ -4,7 +4,7 @@ import {
   deleteProject,
   getProjectById,
   listProjects,
-  updateProject
+  updateProject,
 } from "../services/projectService";
 import { sendSuccess } from "../utils/apiResponse";
 
@@ -13,7 +13,10 @@ export const listProjectsController = async (req: Request, res: Response) => {
   return sendSuccess(res, projects);
 };
 
-export const createProjectController = async (req: Request, res: Response) => {
+export const createProjectController = async (
+  req: Request<Record<string, string>, unknown, Record<string, unknown>>,
+  res: Response,
+) => {
   const project = await createProject(req.auth!, req.body);
   return sendSuccess(res, project, 201);
 };
@@ -23,7 +26,10 @@ export const getProjectController = async (req: Request, res: Response) => {
   return sendSuccess(res, project);
 };
 
-export const updateProjectController = async (req: Request, res: Response) => {
+export const updateProjectController = async (
+  req: Request<Record<string, string>, unknown, Record<string, unknown>>,
+  res: Response,
+) => {
   const project = await updateProject(req.auth!, req.params.id, req.body);
   return sendSuccess(res, project);
 };

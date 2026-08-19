@@ -12,7 +12,7 @@ const start = async () => {
   server.on("error", (error: NodeJS.ErrnoException) => {
     if (error.code === "EADDRINUSE") {
       console.error(
-        `Port ${env.port} is already in use. Update server/.env with a different PORT value.`
+        `Port ${env.port} is already in use. Update server/.env with a different PORT value.`,
       );
       process.exit(1);
     }

@@ -4,19 +4,22 @@ import {
   deleteTask,
   getTaskById,
   listTasks,
-  updateTask
+  updateTask,
 } from "../services/taskService";
 import { sendSuccess } from "../utils/apiResponse";
 
 export const listTasksController = async (req: Request, res: Response) => {
   const tasks = await listTasks(
     req.auth!.organizationId,
-    req.query.projectId as string | undefined
+    req.query.projectId as string | undefined,
   );
   return sendSuccess(res, tasks);
 };
 
-export const createTaskController = async (req: Request, res: Response) => {
+export const createTaskController = async (
+  req: Request<Record<string, string>, unknown, Record<string, unknown>>,
+  res: Response,
+) => {
   const task = await createTask(req.auth!, req.body);
   return sendSuccess(res, task, 201);
 };
@@ -26,7 +29,10 @@ export const getTaskController = async (req: Request, res: Response) => {
   return sendSuccess(res, task);
 };
 
-export const updateTaskController = async (req: Request, res: Response) => {
+export const updateTaskController = async (
+  req: Request<Record<string, string>, unknown, Record<string, unknown>>,
+  res: Response,
+) => {
   const task = await updateTask(req.auth!, req.params.id, req.body);
   return sendSuccess(res, task);
 };
