@@ -66,6 +66,20 @@ export interface Booking {
   updatedAt: string;
 }
 
+// Frontend representation of the Comment model.
+// Backend schema: server/src/models/Comment.ts
+export interface Comment {
+  _id: string;
+  organizationId: string;
+  taskId: string;
+  authorId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CommentCreatePayload = Pick<Comment, "content">;
+
 export interface AuthSession {
   token: string;
   user: User;

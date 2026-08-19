@@ -68,9 +68,7 @@ export const BookingsPage = () => {
         );
       } catch (err) {
         setLoadError(
-          err instanceof Error
-            ? err.message
-            : "Unable to load bookings",
+          err instanceof Error ? err.message : "Unable to load bookings",
         );
       } finally {
         setLoading(false);
@@ -219,12 +217,7 @@ export const BookingsPage = () => {
   }
 
   if (loadError) {
-    return (
-      <StatusPanel
-        title="Failed to load bookings"
-        message={loadError}
-      />
-    );
+    return <StatusPanel title="Failed to load bookings" message={loadError} />;
   }
 
   return (

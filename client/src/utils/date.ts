@@ -26,3 +26,26 @@ export const formatDateTimeInput = (value: string | null | undefined) => {
 
   return new Date(value).toISOString().slice(0, 16);
 };
+
+/**
+ * Format a date string to a short month and year, e.g. "Jan 2026".
+ * Returns an empty string for null/undefined/invalid input.
+ *
+ * Example:
+ * ```
+ * formatDateMonthAndYear('2026-01-15') // => 'Jan 2026'
+ * ```
+ */
+export const formatDateMonthAndYear = (
+  value: string | null | undefined,
+): string => {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "numeric",
+  }).format(date);
+};
