@@ -57,13 +57,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
             }
           },
           "event": [
@@ -97,12 +92,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/projects",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "projects"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"]
             }
           },
           "event": [
@@ -139,12 +130,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"]
             }
           },
           "event": [
@@ -186,14 +173,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -228,14 +209,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -270,14 +245,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -312,14 +281,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -354,14 +317,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -396,14 +353,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -438,14 +389,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -480,14 +425,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments"]
             }
           },
           "event": [
@@ -519,14 +458,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/tasks/invalid-id/comments",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "invalid-id",
-                "comments"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "invalid-id", "comments"]
             }
           },
           "event": [
@@ -553,15 +486,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/not-a-valid-id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments",
-                "not-a-valid-id"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments", "not-a-valid-id"]
             }
           },
           "event": [
@@ -596,15 +522,8 @@
             },
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/not-a-valid-id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments",
-                "not-a-valid-id"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments", "not-a-valid-id"]
             }
           },
           "event": [
@@ -631,15 +550,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/not-a-valid-id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "tasks",
-                "{{taskId}}",
-                "comments",
-                "not-a-valid-id"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", "{{taskId}}", "comments", "not-a-valid-id"]
             }
           },
           "event": [
