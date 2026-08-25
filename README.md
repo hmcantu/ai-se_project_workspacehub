@@ -1,17 +1,28 @@
+Here is the updated README.md content with all required additions—including your live app link, Vercel in the tech stack, a features list, updated scripts, and refined phrasing.
+
+Markdown
 # WorkspaceHub
 
-WorkspaceHub is a project in TripleTen's AI Software Engineering program. It is a full-stack MERN application built with TypeScript on both the client and server. It supports multi-tenant organizations, role-based access, projects, tasks, bookings, and per-organization feature flags.
+WorkspaceHub is a full-stack MERN application built with TypeScript on both the client and server. It supports multi-tenant organizations, role-based access control, project and task management, interactive task comments, booking schedules, and per-organization feature flags.
 
-Students are given this as starting code and, over the course of two sprints, accomplish a number of fixes, refactorings, and new features. The focus of these sprints is on safely and effectively using AI in an existing codebase.
+**Live Demo:** [https://ai-se-project-workspacehub-client-git-workspacehu-93b026-cantu3.vercel.app](https://ai-se-project-workspacehub-client-git-workspacehu-93b026-cantu3.vercel.app)
 
-## Starting stack
+## Features
 
-- React + Vite + TypeScript
-- Tailwind CSS
-- Node.js + Express + TypeScript
-- MongoDB + Mongoose
-- JWT authentication
-- Context API for client state
+- **Multi-Tenant Organizations:** Isolated data, workspaces, and role-based permissions (Owner, Admin, Member).
+- **Task Comments:** Real-time collaboration allowing members to add and manage comments on individual tasks.
+- **Project & Task Management:** Create, update, assign, and track project status and task deadlines across workspaces.
+- **Resource Bookings:** Interactive booking system with backend overlap prevention.
+- **Feature Flags:** Per-organization feature flags to toggle optional functionality (e.g., Scheduling, Advanced Reports, Custom Branding).
+- **JWT Authentication:** Secure user registration, authentication, and session management.
+
+## Tech Stack
+
+- **Frontend:** React, Vite, TypeScript, Tailwind CSS, Context API
+- **Backend:** Node.js, Express, TypeScript
+- **Database:** MongoDB, Mongoose
+- **Deployment:** Vercel
+- **Authentication:** JWT (JSON Web Tokens)
 
 ## Project Structure
 
@@ -19,80 +30,4 @@ Students are given this as starting code and, over the course of two sprints, ac
 workspacehub/
   client/
   server/
-```
-
-## Setup
-
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Copy environment examples and fill them in:
-
-```bash
-cp server/.env.example server/.env
-cp client/.env.example client/.env
-```
-
-Recommended local values:
-
-```env
-# server/.env
-PORT=5001
-MONGODB_URI=mongodb://127.0.0.1:27017/workspacehub
-JWT_SECRET=super-secret-jwt-key
-CLIENT_ORIGIN=http://localhost:5173
-```
-
-```env
-# client/.env
-VITE_API_URL=http://localhost:5001
-```
-
-3. Start MongoDB locally or point `MONGODB_URI` at an existing instance.
-
-4. Seed demo data:
-
-```bash
-npm run seed
-```
-
-5. Run the server and client in separate terminals:
-
-```bash
-npm run dev:server
-npm run dev:client
-```
-
-## Demo Users
-
-The seed script creates one organization with these users:
-
-- `owner@workspacehub.dev` / `Password123!`
-- `admin@workspacehub.dev` / `Password123!`
-- `member@workspacehub.dev` / `Password123!`
-
-## Scripts
-
-- `npm run dev:server`
-- `npm run dev:client`
-- `npm run build`
-- `npm run seed`
-
-## Notes
-
-- All protected API responses follow the same JSON envelope:
-
-```json
-{
-  "success": true,
-  "data": {},
-  "error": null
-}
-```
-
-- The booking overlap rule is isolated in the booking service.
-- Feature-flag checks are isolated in a reusable middleware/service path.
-- Permission logic is centralized in auth and permission helpers.
+  
