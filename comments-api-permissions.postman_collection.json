@@ -1,0 +1,556 @@
+{
+  "info": {
+    "_postman_id": "4d42d416-dce6-4007-b75d-3d7c15bb8d7a",
+    "name": "Comments API Permissions",
+    "description": "Exercises authentication and permission checks for comment edit/delete requests on the WorkspaceHub API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5001/api", "type": "string" },
+    { "key": "ownerEmail", "value": "owner@workspacehub.dev", "type": "string" },
+    { "key": "ownerPassword", "value": "Password123!", "type": "string" },
+    { "key": "adminEmail", "value": "admin@workspacehub.dev", "type": "string" },
+    { "key": "adminPassword", "value": "Password123!", "type": "string" },
+    { "key": "memberEmail", "value": "member@workspacehub.dev", "type": "string" },
+    { "key": "memberPassword", "value": "Password123!", "type": "string" },
+    { "key": "ownerToken", "value": "", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "memberToken", "value": "", "type": "string" },
+    { "key": "projectId", "value": "", "type": "string" },
+    { "key": "taskId", "value": "", "type": "string" },
+    { "key": "ownerCommentId", "value": "", "type": "string" },
+    { "key": "adminCommentId", "value": "", "type": "string" },
+    { "key": "memberCommentId", "value": "", "type": "string" },
+    { "key": "forbiddenCommentId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login as owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{ownerEmail}}\",\n  \"password\": \"{{ownerPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}/auth/login"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"ownerToken\", json.data.token);\n",
+                  "pm.collectionVariables.set(\"ownerUserId\", String(json.data.user._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}/auth/login"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"adminToken\", json.data.token);\n",
+                  "pm.collectionVariables.set(\"adminUserId\", String(json.data.user._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as member",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{memberEmail}}\",\n  \"password\": \"{{memberPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}/auth/login"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"memberToken\", json.data.token);\n",
+                  "pm.collectionVariables.set(\"memberUserId\", String(json.data.user._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "List projects as owner",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": ["{{baseUrl}}/projects"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "if (json.data && json.data.length) {\n  pm.collectionVariables.set(\"projectId\", String(json.data[0]._id));\n}\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create task for comment tests",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"title\": \"Comment permission checks\",\n  \"description\": \"Temporary task for comment permission testing\",\n  \"status\": \"todo\",\n  \"priority\": \"medium\",\n  \"assignedTo\": \"{{memberUserId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks",
+              "host": ["{{baseUrl}}/tasks"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\n  pm.response.to.have.status(201);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"taskId\", String(json.data._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Author access",
+      "item": [
+        {
+          "name": "Create comment as owner",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Owner-created comment for personal update test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\n  pm.response.to.have.status(201);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"ownerCommentId\", String(json.data._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner edits own comment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Owner edits own comment successfully\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{ownerCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{ownerCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner deletes own comment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{ownerCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{ownerCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Owner/Admin access",
+      "item": [
+        {
+          "name": "Create member comment for owner admin test",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{memberToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Member comment for owner/admin permission checks\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\n  pm.response.to.have.status(201);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"memberCommentId\", String(json.data._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner edits another user's comment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Owner edits member comment successfully\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{memberCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{memberCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner deletes another user's comment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{memberCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{memberCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create admin-owned comment for admin access test",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{memberToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Another member comment for admin checks\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\n  pm.response.to.have.status(201);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"adminCommentId\", String(json.data._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin edits another user's comment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Admin edits member comment successfully\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{adminCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{adminCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin deletes another user's comment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{adminCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{adminCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\n  pm.response.to.have.status(200);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Forbidden access",
+      "item": [
+        {
+          "name": "Create a comment by owner for forbidden access test",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{ownerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Owner comment for forbidden-access checks\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {\n  pm.response.to.have.status(201);\n});\n",
+                  "const json = pm.response.json();\n",
+                  "pm.collectionVariables.set(\"forbiddenCommentId\", String(json.data._id));\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Member cannot edit another user's comment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{memberToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Member should not edit owner comment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{forbiddenCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{forbiddenCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 403\", function () {\n  pm.response.to.have.status(403);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Member cannot delete another user's comment",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{memberToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/{{taskId}}/comments/{{forbiddenCommentId}}",
+              "host": ["{{baseUrl}}/tasks/{{taskId}}/comments/{{forbiddenCommentId}}"],
+              "variable": []
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 403\", function () {\n  pm.response.to.have.status(403);\n});\n"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
