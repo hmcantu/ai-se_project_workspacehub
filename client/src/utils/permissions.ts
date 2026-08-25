@@ -1,4 +1,11 @@
-import type { Booking, Project, Task, User, UserRole } from "../types/models";
+import type {
+  Booking,
+  Project,
+  Task,
+  User,
+  UserRole,
+  Comment,
+} from "../types/models";
 
 export const isPrivilegedRole = (role?: UserRole | null) => {
   return role === "owner" || role === "admin";
@@ -34,4 +41,10 @@ export const canEditBooking = (user: User | null, booking: Booking) => {
 
 export const canDeleteResources = (user: User | null) => {
   return isPrivilegedRole(user?.role);
+};
+
+export const canManageComment = (user: User | null, comment: Comment) => {
+  if (!user) return false;
+
+  return isPrivilegedRole(user.role) || user._id === comment.authorId;
 };
