@@ -111,3 +111,7 @@ export type TaskUpdatePayload = Partial<TaskCreatePayload>;
 export interface ProjectWithTaskCount extends Project {
   taskCount: number;
 }
+
+export interface TaskWithCommentCount extends Task {
+  commentCount: number;
+}

@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { Project } from "../models/Project";
 import { Task } from "../models/Task";
 import { User } from "../models/User";
+import { Comment } from "../models/Comment";
 import type { AuthPayload } from "../types/domain";
 import { AppError } from "../utils/appError";
 import { assertFound } from "../utils/scopedQuery";
@@ -43,7 +44,35 @@ const ensureAssigneeInOrganization = async (
 
 export const listTasks = async (organizationId: string, projectId?: string) => {
   const query = projectId ? { organizationId, projectId } : { organizationId };
-  return Task.find(query).sort({ createdAt: -1 });
+
+  const tasks = await Task.find(query).sort({ createdAt: -1 });
+
+  // If no tasks, short-circuit to avoid an extra comments query
+  if (!tasks.length) return tasks;
+
+  const taskIds = tasks.map((t) => String(t._id));
+
+  // Fetch all comments for these tasks in a single query
+  const comments = await Comment.find({
+    organizationId,
+    taskId: { $in: taskIds },
+  });
+
+  // Count comments per task in memory
+  const counts = new Map<string, number>();
+  for (const c of comments) {
+    const key = String(c.taskId);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  // Attach commentCount to each returned task object
+  return tasks.map((task) => {
+    const plain = task.toObject ? task.toObject() : { ...task };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - attach non-schema field for frontend convenience
+    plain.commentCount = counts.get(String(task._id)) ?? 0;
+    return plain;
+  });
 };
 
 export const createTask = async (
