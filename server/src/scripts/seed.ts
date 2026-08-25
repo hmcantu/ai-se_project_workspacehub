@@ -6,6 +6,7 @@ import { Organization } from "../models/Organization";
 import { Project } from "../models/Project";
 import { Task } from "../models/Task";
 import { User } from "../models/User";
+import { deleteTask } from "../services/taskService";
 
 const seed = async () => {
   await connectToDatabase();
@@ -172,6 +173,34 @@ const seed = async () => {
   });
 
   await User.deleteOne({ _id: tempUser._id });
+
+  const ghostTask = await Task.create({
+    organizationId: organization._id,
+    projectId: projectOne._id,
+    title: "Ghost task cleanup",
+    description: "This task is intentionally deleted after a comment is added.",
+    status: "todo",
+    priority: "medium",
+    assignedTo: owner._id,
+    dueDate: new Date("2026-04-20T18:00:00.000Z"),
+    createdAt: new Date("2026-04-18T12:00:00.000Z"),
+  });
+
+  await Comment.create({
+    organizationId: organization._id,
+    taskId: ghostTask._id,
+    authorId: owner._id,
+    content: "Owner: This task is intentionally being cleaned up.",
+  });
+
+  await deleteTask(
+    {
+      userId: String(owner._id),
+      organizationId: String(organization._id),
+      role: "owner",
+    },
+    String(ghostTask._id),
+  );
 
   await Booking.create([
     {
