@@ -44,7 +44,9 @@ describe("validateBookingFormState", () => {
       startsAt: "2026-08-10T12:00",
       endsAt: "2026-08-10T10:00",
     });
-    expect(errors.endsAt).toBe("End time must be strictly after the start time.");
+    expect(errors.endsAt).toBe(
+      "End time must be strictly after the start time.",
+    );
   });
 
   it("returns an error for the boundary case where end time equals start time", () => {
@@ -54,6 +56,8 @@ describe("validateBookingFormState", () => {
       startsAt: time,
       endsAt: time,
     });
-    expect(errors.endsAt).toBe("End time must be strictly after the start time.");
+    expect(errors.endsAt).toBe(
+      "End time must be strictly after the start time.",
+    );
   });
 });
