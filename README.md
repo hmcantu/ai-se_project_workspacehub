@@ -1,6 +1,3 @@
-Here is the updated README.md content with all required additions—including your live app link, Vercel in the tech stack, a features list, updated scripts, and refined phrasing.
-
-Markdown
 # WorkspaceHub
 
 WorkspaceHub is a full-stack MERN application built with TypeScript on both the client and server. It supports multi-tenant organizations, role-based access control, project and task management, interactive task comments, booking schedules, and per-organization feature flags.
