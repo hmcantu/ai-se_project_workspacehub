@@ -5,7 +5,7 @@ Markdown
 
 WorkspaceHub is a full-stack MERN application built with TypeScript on both the client and server. It supports multi-tenant organizations, role-based access control, project and task management, interactive task comments, booking schedules, and per-organization feature flags.
 
-**Live Demo:** [https://ai-se-project-workspacehub-client-git-workspacehu-93b026-cantu3.vercel.app](https://ai-se-project-workspacehub-client-git-workspacehu-93b026-cantu3.vercel.app)
+**Live Demo:** [https://ai-se-project-workspacehub-client.vercel.app](https://ai-se-project-workspacehub-client.vercel.app)
 
 ## Features
 
